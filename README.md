@@ -61,3 +61,4 @@ Chi tiết secrets và quy trình phát hành: [`docs/production/BUILD_AND_RELEA
 2. Làm **P0 trước**; P1 bị gate; P2 không thuộc Beta.
 3. `docs/history/legacy-archive/` chỉ là lịch sử — không khôi phục nếu chưa có quyết định thiết kế rõ ràng (CI có *legacy guard*).
 4. Thiếu rule → **không đoán**: ghi vào [`docs/open-questions/`](docs/open-questions/OPEN_QUESTIONS.md) và dừng ở decision boundary.
+# last-outpost
