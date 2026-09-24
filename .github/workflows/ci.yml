@@ -60,7 +60,7 @@ jobs:
 
       - name: Upload báo cáo test khi lỗi
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: core-test-reports
           path: core/build/reports/tests/
@@ -99,7 +99,7 @@ jobs:
           cp app/build/outputs/apk/debug/app-debug.apk "dist/LastOutpost-${VERSION_NAME}-debug.apk"
 
       - name: Upload APK debug
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: LastOutpost-${{ env.VERSION_NAME }}-debug-apk
           path: dist/*.apk
@@ -107,7 +107,7 @@ jobs:
 
       - name: Upload báo cáo lint khi lỗi
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: android-lint-reports
           path: app/build/reports/
