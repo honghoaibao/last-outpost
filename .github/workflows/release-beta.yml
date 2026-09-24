@@ -23,7 +23,7 @@ jobs:
       # Ký release chỉ khi đã cấu hình secrets (xem docs/production/BUILD_AND_RELEASE.md).
       HAS_KEYSTORE: ${{ secrets.LO_KEYSTORE_BASE64 != '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v5
         with:
