@@ -1,0 +1,12 @@
+{
+  "id": "ENEMY_RIOT_MECH_MUTATE",
+  "schemaVersion": 1,
+  "contentVersion": 1,
+  "status": "Draft",
+  "name": "Riot Mech Mutate",
+  "kind": "species",
+  "group": "C",
+  "introStage": "Late",
+  "stats": null,
+  "notes": "Khung từ Core Design v1.3 (12 loài, nhóm A/B/C/Boss) + Content Specification §6.1 (thứ tự mở). Chỉ số/hành vi CHƯA có nguồn canon → stats=null, xem OQ-CONTENT-02."
+}

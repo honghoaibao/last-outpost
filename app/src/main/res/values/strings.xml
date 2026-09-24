@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Last Outpost</string>
+    <string name="build_label">Phiên bản %1$s</string>
+    <string name="content_summary">Content trong gói: %1$d file quái, %2$d file mission</string>
+    <string name="foundation_notice">Đây là nền móng của bản beta-1: khung mô phỏng, pipeline content và CI. Chưa phải bản chơi được — xem docs/production/BETA_01_STATUS.md.</string>
+    <string name="run_smoke_test">Chạy thử mô phỏng (2 giây)</string>
+</resources>

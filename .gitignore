@@ -1,0 +1,25 @@
+# Gradle / Android
+.gradle/
+build/
+local.properties
+*.iml
+.idea/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Keystore — TUYỆT ĐỐI không commit
+*.jks
+*.keystore
+keystore.properties
+
+# Artifact build cục bộ
+dist/
+
+# Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db

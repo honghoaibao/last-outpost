@@ -1,0 +1,32 @@
+name: Open design question
+description: Thiếu rule thiết kế — KHÔNG tự đoán thành canon (Claude Handoff v1.2, "When a design is missing")
+title: "[OQ] "
+labels: ["open-question"]
+body:
+  - type: input
+    id: missing-rule
+    attributes:
+      label: Rule còn thiếu
+    validations:
+      required: true
+  - type: input
+    id: impacted-system
+    attributes:
+      label: Hệ thống bị ảnh hưởng
+    validations:
+      required: true
+  - type: textarea
+    id: placeholder
+    attributes:
+      label: Placeholder an toàn nhất nếu vẫn phải tiếp tục triển khai
+  - type: textarea
+    id: question
+    attributes:
+      label: Câu hỏi thiết kế chính xác cần được trả lời
+    validations:
+      required: true
+  - type: input
+    id: owner
+    attributes:
+      label: Owner / trạng thái
+      description: Ai chịu trách nhiệm trả lời (Beta 01 DoD yêu cầu mọi open question có owner + status).

@@ -1,0 +1,12 @@
+{
+  "id": "ENEMY_CRAWLER",
+  "schemaVersion": 1,
+  "contentVersion": 1,
+  "status": "Draft",
+  "name": "Crawler",
+  "kind": "species",
+  "group": "A",
+  "introStage": "Tutorial",
+  "stats": null,
+  "notes": "Khung từ Core Design v1.3 (12 loài, nhóm A/B/C/Boss) + Content Specification §6.1 (thứ tự mở). Chỉ số/hành vi CHƯA có nguồn canon → stats=null, xem OQ-CONTENT-02."
+}
