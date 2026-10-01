@@ -10,7 +10,29 @@ Bản nền móng (foundation) cho Beta 01 — chưa phải bản chơi được
 ### Thêm
 - Cấu trúc repo: `app/` (Android, Kotlin + Compose), `core/` (mô phỏng thuần Kotlin/JVM), `content/`, `tools/`, `docs/`.
 - `:core` — fixed-tick clock (20–30 tick/s), vòng đời `BattleWorld` (8 phase), pipeline 13 stage đúng Tech Architecture §IV,
-  hàng đợi Command, `WaveDirector` cưỡng chế **Fixed Enemy Roster**, `Ledger` giao dịch idempotent/nguyên tử. 19 unit test.
+  hàng đợi Command, `WaveDirector` cưỡng chế **Fixed Enemy Roster**, `Ledger` giao dịch idempotent/nguyên tử,
+  `EntityRegistry` (ID entity dùng chung), `battlefield` package — **World Position + Buildable Node + Path
+  Graph/Lane** (ADR-0005: `WorldPosition`, `BuildableNode`, `PathGraph`, `Battlefield`) — `TowerSystem` (đặt
+  Tower vào Buildable Node, kiểm tra mount compatibility + occupancy), `EnemySystem` (tiêu thụ `spawnQueue` →
+  tạo `EnemyEntity` tại đúng entry node của lane), `targeting` package — **Target Acquisition** hai chiều:
+  `TowerTargetingSystem` (Acquire→Filter→Rank→Lock, System Gameplay §6.1–6.2) với **Custom Priority canon**
+  (`TargetingRule`: Filter→PrimaryOrder→TieBreaker — quyết định Bảo 2026-09-27) và `EnemyTargetingSystem`
+  (AI Sim §III, lọc theo target class ưu tiên của archetype + khoảng cách Euclid thật). `EnemyRole` (Core
+  Combat Gameplay §VI). 69 unit test.
+- `tools/validate_content.py` — allowlist hẹp cho legacy guard ("Boss / Siege" là Role hợp lệ, khác "24h siege" đã cấm).
+- `combat` package — **Attack/Damage** (Combat Resolution §6.1/§6.3): `TowerAttackSystem` (ATTACK_PROJECTILE —
+  Fire→Resolve Hit, hitscan) và `DamageResolutionSystem` (DAMAGE_DEATH — Apply Effect, xoá enemy khi HP về 0,
+  phát `enemy_died`). `DamageFormula` đúng công thức `Final Damage = Base × Barrel × Module × Target
+  Interaction × Temporary` rồi `max(1, Raw − Armor)`. `DamageTag` (7 tag, Combat Resolution §6.4);
+  `EnemyEntity.resistances` đổi từ `Map<String,Double>` sang `Map<DamageTag,Double>`; thêm `EnemyEntity.armor`.
+  16 unit test mới (85 tổng).
+
+### Đã chốt (canon)
+- **Threat Cost** (quyết định Bảo, 2026-09-27): AI & Simulation Design §VII là source of truth. System &
+  Gameplay Design v1.1 §8.3 là legacy/sample values, không dùng để implementation.
+- **Custom Priority của Tower** (quyết định Bảo, 2026-09-27): FILTER (All/Special Threat/Boss-Elite/Air/
+  Ground/Swarm) → PRIMARY ORDER (First/Nearest/Strongest/Lowest HP) → TIE BREAKER tuỳ chọn (First/Nearest).
+  Không hỗ trợ nested condition, AND/OR chain, threshold, custom scripting.
 - `content/` — 12 loài quái (10 species + 2 boss) ở trạng thái Draft (chưa có chỉ số — OPEN), 1 mission placeholder, manifest.
 - `tools/` — `validate_content.py` (schema, ID, roster, reference, cycle, reward, kênh production, legacy guard),
   `verify_docs.py` (bảo vệ `docs/design`), `check_version.py`. 34 test Python.

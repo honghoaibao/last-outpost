@@ -66,6 +66,11 @@ LEGACY_PATTERN = re.compile(
 )
 LEGACY_SCAN_SUFFIXES = {".json", ".kt", ".kts", ".xml"}
 
+# TD-08: allowlist hẹp cho dương tính giả đã xác nhận. "Boss / Siege" là Role hợp lệ (Core Combat Gameplay
+# §VI, Enemy Design Framework — Colossus Titan), KHÁC với "24h siege" đã bị cấm (Current Decisions §5). Mọi
+# tham chiếu "24h siege" trong nguồn đều có tiền tố "24h" nên KHÔNG bị scrub bởi allowlist này.
+LEGACY_ALLOWLIST_PATTERN = re.compile(r"\bboss[ _/-]*siege\b", re.IGNORECASE)
+
 
 @dataclass
 class Report:
@@ -320,7 +325,8 @@ def scan_legacy(paths: list[Path]) -> Report:
             except UnicodeDecodeError:
                 continue
             for lineno, line in enumerate(text.splitlines(), start=1):
-                match = LEGACY_PATTERN.search(line)
+                scrubbed = LEGACY_ALLOWLIST_PATTERN.sub("", line)
+                match = LEGACY_PATTERN.search(scrubbed)
                 if match:
                     report.error(
                         f"{path.as_posix()}:{lineno}",

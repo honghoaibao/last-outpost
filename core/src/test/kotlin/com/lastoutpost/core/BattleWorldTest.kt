@@ -1,5 +1,6 @@
 package com.lastoutpost.core
 
+import com.lastoutpost.core.battlefield.WorldPosition
 import com.lastoutpost.core.sim.BattlePhase
 import com.lastoutpost.core.sim.BattleWorld
 import com.lastoutpost.core.sim.Command
@@ -69,12 +70,12 @@ class BattleWorldTest {
     fun `command duoc xu ly o buoc dau cua tick va ghi log kem tick`() {
         val w = world().apply { toCombat() }
         w.step() // tick 0 — chưa có command
-        w.commands.submit(Command.MoveCommander(3, 4))
+        w.commands.submit(Command.MoveCommander(WorldPosition(3.0, 4.0)))
         w.commands.submit(Command.Repair(entityId = 7L))
         w.step() // tick 1
         assertEquals(0, w.commands.size)
         assertEquals(listOf(1L, 1L), w.commandLog.map { it.tick })
-        assertEquals(Command.MoveCommander(3, 4), w.commandLog[0].command)
+        assertEquals(Command.MoveCommander(WorldPosition(3.0, 4.0)), w.commandLog[0].command)
     }
 
     @Test

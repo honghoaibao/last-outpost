@@ -143,6 +143,19 @@ class LegacyGuardTests(ContentTestCase):
         (self.root / "ok.json").write_text('{"note": "besieged? no. hexagonal ok"}\n', encoding="utf-8")
         self.assertTrue(vc.scan_legacy([self.root]).ok)
 
+    def test_boss_siege_role_is_allowlisted(self):
+        # Core Combat Gameplay §VI: Colossus Titan có Role "Boss / Siege" — hợp lệ, KHÁC "24h siege" đã cấm.
+        (self.root / "role.kt").write_text('enum class EnemyRole { BOSS_SIEGE }\n// Role: Boss / Siege\n', encoding="utf-8")
+        self.assertTrue(vc.scan_legacy([self.root]).ok)
+
+    def test_24h_siege_still_detected_even_with_allowlist(self):
+        (self.root / "bad.kt").write_text('// Không khôi phục 24h siege.\n', encoding="utf-8")
+        self.assertHasError(vc.scan_legacy([self.root]), "legacy guard")
+
+    def test_siege_without_boss_prefix_still_detected(self):
+        (self.root / "bad2.kt").write_text('val mode = "siege_mode"\n', encoding="utf-8")
+        self.assertHasError(vc.scan_legacy([self.root]), "legacy guard")
+
 
 class RepositoryContentTests(unittest.TestCase):
     """Dữ liệu content thật của repo phải luôn hợp lệ ở kênh beta."""

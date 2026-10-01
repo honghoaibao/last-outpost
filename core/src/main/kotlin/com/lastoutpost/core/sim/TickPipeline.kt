@@ -42,7 +42,9 @@ internal class CommandIntakeSystem : TickSystem {
     override val stage = TickStage.INPUT_COMMANDS
 
     override fun update(world: BattleWorld) {
-        for (command in world.commands.drain()) {
+        val drained = world.commands.drain()
+        world.commandsThisTick = drained
+        for (command in drained) {
             world.commandLog += CommandRecord(world.tick, command)
             world.emit("command", command::class.simpleName ?: "Command")
         }
