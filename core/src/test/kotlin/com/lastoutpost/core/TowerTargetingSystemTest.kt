@@ -2,7 +2,9 @@ package com.lastoutpost.core
 
 import com.lastoutpost.core.battlefield.Battlefield
 import com.lastoutpost.core.battlefield.BuildableNode
+import com.lastoutpost.core.battlefield.LaneNode
 import com.lastoutpost.core.battlefield.MountType
+import com.lastoutpost.core.battlefield.PathGraph
 import com.lastoutpost.core.battlefield.WorldPosition
 import com.lastoutpost.core.enemy.EnemySystem
 import com.lastoutpost.core.sim.BattlePhase
@@ -33,7 +35,8 @@ class TowerTargetingSystemTest {
     fun `tower lock enemy gan nhat trong range`() {
         val f = Battlefield(
             nodes = listOf(BuildableNode("N0", WorldPosition(0.0, 0.0), MountType.GROUND)),
-            laneEntryNodes = mapOf(0 to "N0"),
+            paths = PathGraph(listOf(LaneNode("ENTRY_0", WorldPosition(0.0, 0.0))), emptyList()),
+            laneEntryNodes = mapOf(0 to "ENTRY_0"),
         )
         val towers = TowerSystem(f, barrelCatalog = setOf("BARREL_TEST"), moduleCatalog = setOf("MODULE_TEST"))
         val enemies = EnemySystem(f)
@@ -55,10 +58,8 @@ class TowerTargetingSystemTest {
     @Test
     fun `enemy ngoai range thi khong bi lock`() {
         val f = Battlefield(
-            nodes = listOf(
-                BuildableNode("N0", WorldPosition(0.0, 0.0), MountType.GROUND),
-                BuildableNode("FAR", WorldPosition(1000.0, 0.0), MountType.GROUND),
-            ),
+            nodes = listOf(BuildableNode("N0", WorldPosition(0.0, 0.0), MountType.GROUND)),
+            paths = PathGraph(listOf(LaneNode("FAR", WorldPosition(1000.0, 0.0))), emptyList()),
             laneEntryNodes = mapOf(0 to "FAR"),
         )
         val towers = TowerSystem(f, barrelCatalog = setOf("BARREL_TEST"), moduleCatalog = setOf("MODULE_TEST"))

@@ -2,7 +2,9 @@ package com.lastoutpost.core
 
 import com.lastoutpost.core.battlefield.Battlefield
 import com.lastoutpost.core.battlefield.BuildableNode
+import com.lastoutpost.core.battlefield.LaneNode
 import com.lastoutpost.core.battlefield.MountType
+import com.lastoutpost.core.battlefield.PathGraph
 import com.lastoutpost.core.battlefield.WorldPosition
 import com.lastoutpost.core.enemy.EnemySystem
 import com.lastoutpost.core.sim.BattlePhase
@@ -45,7 +47,8 @@ class EnemyTargetingSystemTest {
                 BuildableNode("N0", WorldPosition(0.0, 0.0), MountType.GROUND),
                 BuildableNode("N1", WorldPosition(10.0, 0.0), MountType.GROUND),
             ),
-            laneEntryNodes = mapOf(0 to "N0"), // enemy spawn ngay cạnh tower N0 → phải nhắm N0, không phải N1
+            paths = PathGraph(listOf(LaneNode("ENTRY_0", WorldPosition(0.0, 0.0))), emptyList()),
+            laneEntryNodes = mapOf(0 to "ENTRY_0"), // enemy spawn ngay cạnh tower N0 → phải nhắm N0, không phải N1
         )
         val towers = TowerSystem(field, barrelCatalog = setOf("BARREL_TEST"), moduleCatalog = setOf("MODULE_TEST"))
         // EMP Stalker: preferredTargetClasses = [TOWER]

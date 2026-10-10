@@ -14,8 +14,8 @@ import com.lastoutpost.core.sim.TickSystem
  * Points") nếu mission có khai báo; nếu không (mission chưa cấu hình, hoặc `lane = null`) thì fallback về
  * `(0.0, 0.0)` — placeholder kỹ thuật, KHÔNG phải vị trí spawn thật.
  *
- * CHƯA làm ở đây: Movement/Pathfinding theo Path Graph, Target Selection, Attack/Damage, Status Effects —
- * các milestone riêng (Target Acquisition, Projectile/Damage) theo đúng thứ tự tick stage sau này.
+ * Enemy GROUND được gắn `currentNodeId` = entry node của lane (nếu có battlefield) để [MovementSystem] path
+ * được ngay từ tick đầu. CHƯA làm ở đây: Status Effects — milestone riêng, theo đúng thứ tự tick stage sau này.
  */
 class EnemySystem(
     private val battlefield: Battlefield? = null,
@@ -27,12 +27,13 @@ class EnemySystem(
         while (world.spawnQueue.isNotEmpty()) {
             val intent = world.spawnQueue.removeFirst()
             val entry = catalog[intent.speciesId]
+            val entryNodeId = battlefield?.entryNodeIdForLane(intent.lane)
             val position = battlefield?.spawnPositionForLane(intent.lane) ?: WorldPosition(0.0, 0.0)
             repeat(intent.count) {
                 val id = world.entities.createEnemy(
                     speciesId = intent.speciesId,
                     position = position,
-                    movement = Movement(entry?.movementType ?: MovementType.GROUND),
+                    movement = Movement(entry?.movementType ?: MovementType.GROUND, currentNodeId = entryNodeId),
                     threatProfile = ThreatProfile(entry?.threatCost),
                 )
                 world.emit("enemy_spawned", "id=$id species=${intent.speciesId}")

@@ -58,6 +58,9 @@ class WaveDirector(
     private val plan: List<SpawnGroup> = plan.sortedBy { it.atTick }
     private var cursor = 0
 
+    /** `true` khi toàn bộ kế hoạch spawn đã được phát hết — dùng cho điều kiện "Final Wave" (System Gameplay §17.3). */
+    val isPlanExhausted: Boolean get() = cursor >= plan.size
+
     init {
         val violations = this.plan.filterNot { roster.allows(it.speciesId) }
         if (violations.isNotEmpty()) throw RosterViolationException(violations, roster)

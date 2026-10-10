@@ -1,8 +1,8 @@
 package com.lastoutpost.core
 
 import com.lastoutpost.core.battlefield.Battlefield
-import com.lastoutpost.core.battlefield.BuildableNode
-import com.lastoutpost.core.battlefield.MountType
+import com.lastoutpost.core.battlefield.LaneNode
+import com.lastoutpost.core.battlefield.PathGraph
 import com.lastoutpost.core.battlefield.WorldPosition
 import com.lastoutpost.core.enemy.AIState
 import com.lastoutpost.core.enemy.EnemySystem
@@ -80,8 +80,10 @@ class EnemySystemTest {
 
     @Test
     fun `co battlefield voi lane entry thi spawn dung vi tri entry node`() {
+        // Entry node phải là LaneNode trên Path Graph (không phải BuildableNode) để MovementSystem path được.
         val field = Battlefield(
-            nodes = listOf(BuildableNode("ENTRY_LANE_0", WorldPosition(12.0, 3.0), MountType.GROUND)),
+            nodes = emptyList(),
+            paths = PathGraph(listOf(LaneNode("ENTRY_LANE_0", WorldPosition(12.0, 3.0))), emptyList()),
             laneEntryNodes = mapOf(0 to "ENTRY_LANE_0"),
         )
         val roster = FixedRoster(setOf("ENEMY_CRAWLER"))

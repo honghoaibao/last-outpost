@@ -1,5 +1,6 @@
 package com.lastoutpost.core.sim
 
+import com.lastoutpost.core.entity.BaseCore
 import com.lastoutpost.core.entity.DamageTag
 import com.lastoutpost.core.entity.EntityRegistry
 import kotlin.random.Random
@@ -30,6 +31,7 @@ class BattleWorld(
     val seed: Long,
     val config: SimConfig = SimConfig(),
     systems: List<TickSystem> = emptyList(),
+    core: BaseCore? = null,
 ) {
     private val pipeline = TickPipeline(listOf(CommandIntakeSystem()) + systems)
 
@@ -55,6 +57,13 @@ class BattleWorld(
     val eventLog = mutableListOf<WorldEvent>()
     val spawnQueue = ArrayDeque<SpawnIntent>()
     val damageQueue = ArrayDeque<DamageEvent>()
+
+    /**
+     * Base Core của mission (System Gameplay §XVII) — `null` nếu mission chưa cấu hình (không có objective tự
+     * động). Chỉ các system mission (`com.lastoutpost.core.mission`) được thay đổi.
+     */
+    var core: BaseCore? = core
+        internal set
 
     /** Entity Registry — Tech Architecture §III/§V. Dùng chung cho Tower, và Enemy khi triển khai. */
     val entities = EntityRegistry()

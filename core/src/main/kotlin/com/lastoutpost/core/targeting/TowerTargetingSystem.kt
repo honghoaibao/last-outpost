@@ -1,7 +1,6 @@
 package com.lastoutpost.core.targeting
 
 import com.lastoutpost.core.battlefield.Battlefield
-import com.lastoutpost.core.battlefield.WorldPosition
 import com.lastoutpost.core.enemy.EnemyEntity
 import com.lastoutpost.core.enemy.EnemyRole
 import com.lastoutpost.core.enemy.MovementType
@@ -28,9 +27,10 @@ import com.lastoutpost.core.tower.TowerEntity
  *   [TargetFilter.SPECIAL_THREAT] CHƯA có tiêu chí nguồn nào → luôn khớp RỖNG (không tự đặt tiêu chí).
  * - **Primary order:** NEAREST/STRONGEST/LOWEST_HP dùng dữ liệu thật khi có (Health hiện luôn `null` —
  *   OQ-CONTENT-02 — nên STRONGEST/LOWEST_HP hiện không phân biệt được các candidate thiếu Health, xếp cuối).
- *   FIRST dùng khoảng cách Euclid tới [Battlefield.corePosition] (xấp xỉ "tiến xa nhất trên lane" bằng
- *   đường thẳng, KHÔNG phải hop-count trên Path Graph thật — xem TECH_DEBT); nếu battlefield chưa cấu hình
- *   `coreNodeId`, fallback về thứ tự entity id (không sụp đổ, nhưng không có ý nghĩa "tiến xa").
+ *   FIRST dùng độ dài đường đi THẬT trên Path Graph ([Battlefield.pathDistanceToCore], cần enemy có
+ *   `movement.currentNodeId` — enemy GROUND spawn qua battlefield mới có) khi có; nếu không (enemy FLYING,
+ *   hoặc chưa gắn Path Graph), fallback khoảng cách thẳng tới [Battlefield.corePosition]; nếu battlefield
+ *   chưa cấu hình `coreNodeId`, fallback cuối cùng về thứ tự entity id (không sụp đổ, không có ý nghĩa "tiến xa").
  * - **Tie breaker:** áp dụng khi hai candidate bằng điểm primary; mặc định cuối cùng luôn là entity id để
  *   đảm bảo kết quả tất định tuyệt đối (không phải một phần của quyết định thiết kế, chỉ để ổn định).
  *
@@ -45,7 +45,6 @@ class TowerTargetingSystem(
 
     override fun update(world: BattleWorld) {
         val enemies = world.entities.enemyIds.mapNotNull { id -> world.entities.enemy(id)?.let { id to it } }
-        val goal = battlefield?.corePosition
 
         for (towerId in world.entities.towerIds) {
             val tower = world.entities.tower(towerId) ?: continue
@@ -56,8 +55,8 @@ class TowerTargetingSystem(
                 .filter { (_, enemy) -> matchesFilter(enemy, rule.filter) }
 
             val ranked = candidates.sortedWith(
-                compareBy<Pair<Long, EnemyEntity>> { (id, enemy) -> primaryKey(rule.primaryOrder, tower, id, enemy, goal) }
-                    .thenBy { (id, enemy) -> tieKey(rule.tieBreaker, tower, id, enemy, goal) }
+                compareBy<Pair<Long, EnemyEntity>> { (id, enemy) -> primaryKey(rule.primaryOrder, tower, id, enemy) }
+                    .thenBy { (id, enemy) -> tieKey(rule.tieBreaker, tower, id, enemy) }
                     .thenBy { (id, _) -> id }, // tie-break cuối cùng: chỉ để tất định, không phải rule thiết kế
             )
 
@@ -66,6 +65,13 @@ class TowerTargetingSystem(
                 world.entities.updateTower(towerId) { it.copy(targeting = Targeting(lockedId, rule)) }
             }
         }
+    }
+
+    /** Khoảng cách "tiến xa về Core" của một enemy — path graph thật khi có node, không thì đường thẳng, không thì null. */
+    private fun progressToCoreDistance(enemy: EnemyEntity): Double? {
+        val field = battlefield ?: return null
+        val pathDistance = enemy.movement.currentNodeId?.let { field.pathDistanceToCore(it) }
+        return pathDistance ?: field.corePosition?.let { enemy.position.distanceTo(it) }
     }
 
     private fun matchesFilter(enemy: EnemyEntity, filter: TargetFilter): Boolean {
@@ -80,18 +86,18 @@ class TowerTargetingSystem(
         }
     }
 
-    private fun primaryKey(order: PrimaryOrder, tower: TowerEntity, id: Long, enemy: EnemyEntity, goal: WorldPosition?): Double =
+    private fun primaryKey(order: PrimaryOrder, tower: TowerEntity, id: Long, enemy: EnemyEntity): Double =
         when (order) {
             PrimaryOrder.NEAREST -> tower.position.distanceTo(enemy.position)
-            PrimaryOrder.FIRST -> goal?.let { enemy.position.distanceTo(it) } ?: id.toDouble()
+            PrimaryOrder.FIRST -> progressToCoreDistance(enemy) ?: id.toDouble()
             PrimaryOrder.STRONGEST -> -(enemy.health?.max?.toDouble() ?: Double.NEGATIVE_INFINITY) // chưa rõ Max HP → xếp cuối
             PrimaryOrder.LOWEST_HP -> enemy.health?.current?.toDouble() ?: Double.POSITIVE_INFINITY // chưa rõ Current HP → xếp cuối
         }
 
-    private fun tieKey(breaker: TieBreaker?, tower: TowerEntity, id: Long, enemy: EnemyEntity, goal: WorldPosition?): Double =
+    private fun tieKey(breaker: TieBreaker?, tower: TowerEntity, id: Long, enemy: EnemyEntity): Double =
         when (breaker) {
             null -> 0.0
             TieBreaker.NEAREST -> tower.position.distanceTo(enemy.position)
-            TieBreaker.FIRST -> goal?.let { enemy.position.distanceTo(it) } ?: id.toDouble()
+            TieBreaker.FIRST -> progressToCoreDistance(enemy) ?: id.toDouble()
         }
 }

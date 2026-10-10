@@ -26,6 +26,24 @@ Bản nền móng (foundation) cho Beta 01 — chưa phải bản chơi được
   Interaction × Temporary` rồi `max(1, Raw − Armor)`. `DamageTag` (7 tag, Combat Resolution §6.4);
   `EnemyEntity.resistances` đổi từ `Map<String,Double>` sang `Map<DamageTag,Double>`; thêm `EnemyEntity.armor`.
   16 unit test mới (85 tổng).
+- `PathGraph.shortestPath`/`pathLength` (Dijkstra, trọng số Euclid) — navigation graph thật cho enemy GROUND
+  (AI & Simulation Design §IV.1). `enemy/MovementSystem.kt` (TickStage.MOVEMENT): GROUND đi theo Path Graph,
+  FLYING bay thẳng tới Core (§IV.2), BURROW chưa di chuyển (§IV.3, chưa có underground graph). Enemy dừng +
+  phát `enemy_reached_core` khi tới Core. `EnemySystem` giờ gắn `Movement.currentNodeId` khi spawn qua lane.
+  `TowerTargetingSystem.FIRST` nâng cấp dùng `Battlefield.pathDistanceToCore` (path-cost thật) thay vì đường
+  thẳng khi có thể — đóng TD-24. 20 unit test mới (105 tổng).
+- Sửa: entry node của lane (`Battlefield.spawnPositionForLane`/`entryNodeIdForLane`) giờ tra đúng trên
+  `PathGraph` (`LaneNode`) thay vì danh sách Buildable Node — cần thiết để Movement path được từ điểm spawn.
+- **Ammo + Heat** (System Gameplay §10.2/§XII): `TowerAttackSystem` chặn bắn khi hết Ammo hoặc Heat 100% (Jam),
+  trừ `ammoPerShot`/cộng `shotHeat` khi bắn; `combat/HeatPowerWaterSystem` (HEAT_POWER_WATER) áp Cooling mỗi tick
+  (`New Heat = Old Heat + Shot Heat − Cooling`); `HeatModel` phân band Normal/Warm/Critical/Jam đúng bảng §12.2.
+  Mặc định `TowerEntity.ammo/heat = null` (không giới hạn) nên không ảnh hưởng hành vi cũ. Power/Water và mạng
+  Logistics (resupply) chưa làm — xem TD-34/TD-35. 14 unit test mới (119 tổng).
+- **Mission Objective** (System Gameplay §XVII): `entity/BaseCore` (HP, `BattleWorld.core`), `mission/CoreAssaultSystem`
+  (enemy tới Core đánh theo cooldown, HP mất dần — không instant death) và `mission/MissionObjectiveSystem`
+  (OBJECTIVES: Defeat = Core Destroyed, Victory = hết Final Wave + sân sạch + Core còn sống; Defeat ưu tiên). Thêm
+  `WaveDirector.isPlanExhausted`, `EnemyAttack` (cooldown) trên `EnemyEntity`. 14 unit test mới (133 tổng),
+  gồm test tích hợp spawn → di chuyển → đánh Core → Defeat. "Survive Final Wave" là diễn giải — OQ-DESIGN-11.
 
 ### Đã chốt (canon)
 - **Threat Cost** (quyết định Bảo, 2026-09-27): AI & Simulation Design §VII là source of truth. System &

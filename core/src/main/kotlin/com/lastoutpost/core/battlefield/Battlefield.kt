@@ -26,15 +26,28 @@ class Battlefield(
 
     val nodeIds: Set<String> get() = nodesById.keys
 
-    /** Vị trí spawn cho một lane, nếu mission có khai báo entry node cho lane đó. */
-    fun spawnPositionForLane(lane: Int?): WorldPosition? =
-        lane?.let { laneEntryNodes[it] }?.let { nodesById[it]?.position }
+    /**
+     * ID node entry của một lane, nếu mission có khai báo — dùng để gắn enemy mới spawn vào Path Graph.
+     * Đây là ID của một [LaneNode] trong [paths] (không phải [BuildableNode]) — enemy path bằng
+     * [PathGraph.shortestPath], nên entry point BẮT BUỘC phải tồn tại trên Path Graph.
+     */
+    fun entryNodeIdForLane(lane: Int?): String? = lane?.let { laneEntryNodes[it] }
+
+    /** Vị trí spawn cho một lane, nếu mission có khai báo entry node cho lane đó và node đó tồn tại trên Path Graph. */
+    fun spawnPositionForLane(lane: Int?): WorldPosition? = entryNodeIdForLane(lane)?.let { paths.node(it)?.position }
 
     /**
      * Vị trí Core (nếu [coreNodeId] đã cấu hình) — Core nằm trên Path Graph (đích của lane), không phải một
      * Buildable Node, nên tra ở [paths] chứ không phải danh sách node ở trên.
      */
     val corePosition: WorldPosition? get() = coreNodeId?.let { paths.node(it)?.position }
+
+    /** Độ dài đường đi thật (theo Path Graph) từ một node tới Core — dùng cho PrimaryOrder.FIRST chính xác. */
+    fun pathDistanceToCore(fromNodeId: String): Double? {
+        val core = coreNodeId ?: return null
+        val path = paths.shortestPath(fromNodeId, core) ?: return null
+        return paths.pathLength(path)
+    }
 
     /** Đặt Tower vào node — gọi sau khi đã validate; ném lỗi nếu node không tồn tại hoặc đã bị chiếm. */
     fun occupy(nodeId: String, entityId: Long) {

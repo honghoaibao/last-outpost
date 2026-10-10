@@ -18,8 +18,12 @@ data class Resistances(val values: Map<DamageTag, Double>)
  */
 data class StatusEffects(val activeIds: List<String> = emptyList())
 
-/** [speed] — OPEN, chưa có số liệu canon (OQ-CONTENT-02). */
-data class Movement(val type: MovementType, val speed: Double? = null)
+/**
+ * [speed] — OPEN, chưa có số liệu canon (OQ-CONTENT-02), phải truyền từ ngoài để enemy di chuyển
+ * ([com.lastoutpost.core.enemy.MovementSystem]). [currentNodeId] — node hiện tại trên Path Graph (chỉ có
+ * nghĩa với GROUND, gắn khi spawn qua entry node của lane — `null` nếu enemy không spawn qua Battlefield).
+ */
+data class Movement(val type: MovementType, val speed: Double? = null, val currentNodeId: String? = null)
 
 /**
  * Mục tiêu hiện tại của enemy. [com.lastoutpost.core.targeting.EnemyTargetingSystem] cập nhật field này —
@@ -37,6 +41,12 @@ data class Behavior(val archetypeId: String, val state: AIState = AIState.SPAWN)
  * `null` với species chưa có trong bảng gốc (vd Boss — dùng Boss AI Framework riêng, không qua Threat Budget thường).
  */
 data class ThreatProfile(val threatCost: Int? = null)
+
+/**
+ * Trạng thái cooldown tấn công của enemy — mở rộng so với danh sách thành phần Tech Architecture §V (không có
+ * Attack riêng cho enemy) vì [com.lastoutpost.core.mission.CoreAssaultSystem] cần đếm lùi giữa các đòn đánh Core.
+ */
+data class EnemyAttack(val cooldownRemainingTicks: Int = 0)
 
 /**
  * EnemyEntity — Tech Architecture §V (Transform, Health, Movement, Resistances, Status, Targeting, Behavior,
@@ -64,4 +74,5 @@ data class EnemyEntity(
     val behavior: Behavior,
     val threatProfile: ThreatProfile = ThreatProfile(),
     val isElite: Boolean = false,
+    val attack: EnemyAttack = EnemyAttack(),
 )
